@@ -37,7 +37,9 @@ export function Navbar() {
 
   useEffect(() => {
     const theme = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
     setIsDark(theme === "dark" || (!theme && prefersDark));
   }, []);
 
@@ -52,49 +54,49 @@ export function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
     >
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center space-x-8">
+      <div className="container flex h-14 items-center justify-between px-4">
+        <div className="flex items-center space-x-6">
           <Link href="/" className="flex items-center space-x-2">
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+              className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground"
             >
-              <span className="font-bold">Z</span>
+              <span className="font-bold text-sm">Z</span>
             </motion.div>
-            <span className="font-bold text-xl">Zeno</span>
+            <span className="font-bold text-lg">Zeno</span>
           </Link>
+        </div>
 
+        <div className="flex items-center space-x-2">
           <div className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
-              
+
               return (
                 <Link key={item.href} href={item.href}>
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                    className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
                       isActive
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-accent"
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-3.5 w-3.5" />
                     <span className="hidden lg:block">{item.label}</span>
                   </motion.div>
                 </Link>
               );
             })}
           </div>
-        </div>
-
-        <div className="flex items-center space-x-4">
+          
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={() => setIsDark(!isDark)}
-            className="h-9 w-9"
+            className="h-8 w-8 p-0"
           >
             <motion.div
               initial={false}
@@ -102,9 +104,9 @@ export function Navbar() {
               transition={{ duration: 0.2 }}
             >
               {isDark ? (
-                <Sun className="h-4 w-4" />
+                <Sun className="h-3.5 w-3.5" />
               ) : (
-                <Moon className="h-4 w-4" />
+                <Moon className="h-3.5 w-3.5" />
               )}
             </motion.div>
             <span className="sr-only">Toggle theme</span>

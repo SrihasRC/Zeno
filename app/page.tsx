@@ -46,7 +46,7 @@ export default function Dashboard() {
     .reduce((total, session) => total + session.duration, 0);
 
   return (
-    <div className="container py-8 space-y-8">
+    <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -55,13 +55,13 @@ export default function Dashboard() {
       >
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-sm text-muted-foreground">
               Welcome back! Here&apos;s your productivity overview for today.
             </p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {new Date().toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -77,26 +77,26 @@ export default function Dashboard() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-4 border border-primary/20"
+          className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-3 border border-primary/20"
         >
-          <p className="text-sm italic text-muted-foreground">&quot;{quote}&quot;</p>
+          <p className="text-xs italic text-muted-foreground">&quot;{quote}&quot;</p>
         </motion.div>
       </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card>
+          <Card className="p-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today&apos;s Tasks</CardTitle>
-              <CheckSquare className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-xs font-medium">Today&apos;s Tasks</CardTitle>
+              <CheckSquare className="h-3.5 w-3.5 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{completedTasks}/{todaysTasks.length}</div>
+            <CardContent className="p-0">
+              <div className="text-xl font-bold">{completedTasks}/{todaysTasks.length}</div>
               <p className="text-xs text-muted-foreground">
                 {todaysTasks.length > 0 
                   ? `${Math.round((completedTasks / todaysTasks.length) * 100)}% complete`
@@ -112,13 +112,13 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card>
+          <Card className="p-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Focus Time</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-xs font-medium">Focus Time</CardTitle>
+              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{focusTime}m</div>
+            <CardContent className="p-0">
+              <div className="text-xl font-bold">{focusTime}m</div>
               <p className="text-xs text-muted-foreground">
                 {todaysSessions.length} sessions completed
               </p>
@@ -131,13 +131,13 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card>
+          <Card className="p-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Goals</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-xs font-medium">Active Goals</CardTitle>
+              <Target className="h-3.5 w-3.5 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">3</div>
+            <CardContent className="p-0">
+              <div className="text-xl font-bold">3</div>
               <p className="text-xs text-muted-foreground">
                 2 on track, 1 behind
               </p>
@@ -150,13 +150,13 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <Card>
+          <Card className="p-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Streak</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-xs font-medium">Streak</CardTitle>
+              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">7</div>
+            <CardContent className="p-0">
+              <div className="text-xl font-bold">7</div>
               <p className="text-xs text-muted-foreground">
                 Days of productivity
               </p>
@@ -166,44 +166,44 @@ export default function Dashboard() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Today's Tasks */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Today&apos;s Tasks */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
           className="lg:col-span-2"
         >
-          <Card>
-            <CardHeader>
+          <Card className="p-4">
+            <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle>Today&apos;s Tasks</CardTitle>
-                <Button size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-2" />
+                <CardTitle className="text-sm font-medium">Today&apos;s Tasks</CardTitle>
+                <Button size="sm" variant="outline" className="text-xs">
+                  <Plus className="h-3 w-3 mr-1" />
                   Add Task
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 p-0">
               {todaysTasks.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <CheckSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No tasks scheduled for today</p>
-                  <p className="text-sm">Add some tasks to get started!</p>
+                <div className="text-center py-6 text-muted-foreground">
+                  <CheckSquare className="h-8 w-8 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">No tasks scheduled for today</p>
+                  <p className="text-xs">Add some tasks to get started!</p>
                 </div>
               ) : (
                 todaysTasks.slice(0, 5).map((task) => (
-                  <div key={task.id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                    <div className={`w-2 h-2 rounded-full ${
+                  <div key={task.id} className="flex items-center space-x-2 p-2 border rounded-md">
+                    <div className={`w-1.5 h-1.5 rounded-full ${
                       task.priority === 'high' ? 'bg-red-500' :
                       task.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
                     }`} />
-                    <div className="flex-1">
-                      <p className={`font-medium ${task.status === 'done' ? 'line-through text-muted-foreground' : ''}`}>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium truncate ${task.status === 'done' ? 'line-through text-muted-foreground' : ''}`}>
                         {task.title}
                       </p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Badge variant={task.status === 'done' ? 'default' : 'secondary'}>
+                      <div className="flex items-center space-x-1 mt-1">
+                        <Badge variant={task.status === 'done' ? 'default' : 'secondary'} className="text-xs">
                           {task.status.replace('-', ' ')}
                         </Badge>
                         {task.tags.slice(0, 2).map((tag) => (
@@ -226,42 +226,42 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          <Card>
-            <CardHeader>
-              <CardTitle>Pomodoro Timer</CardTitle>
+          <Card className="p-4">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium">Pomodoro Timer</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 p-0">
               {currentSession && isRunning ? (
                 <div className="text-center">
-                  <div className="text-2xl font-bold mb-2">
+                  <div className="text-lg font-bold mb-2">
                     Session Active
                   </div>
-                  <Badge variant="default" className="mb-4">
+                  <Badge variant="default" className="mb-3 text-xs">
                     {currentSession.type.replace('-', ' ')}
                   </Badge>
-                  <Button size="sm" variant="outline">
-                    <Coffee className="h-4 w-4 mr-2" />
+                  <Button size="sm" variant="outline" className="text-xs">
+                    <Coffee className="h-3 w-3 mr-1" />
                     Take Break
                   </Button>
                 </div>
               ) : (
-                <div className="text-center space-y-4">
-                  <div className="text-lg font-medium text-muted-foreground">
+                <div className="text-center space-y-3">
+                  <div className="text-sm font-medium text-muted-foreground">
                     Ready to focus?
                   </div>
-                  <Button className="w-full">
-                    <Play className="h-4 w-4 mr-2" />
+                  <Button className="w-full text-xs">
+                    <Play className="h-3 w-3 mr-1" />
                     Start 25min Focus
                   </Button>
                 </div>
               )}
               
-              <div className="space-y-2 pt-4 border-t">
-                <div className="flex justify-between text-sm">
+              <div className="space-y-1 pt-3 border-t">
+                <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Today&apos;s Sessions</span>
                   <span className="font-medium">{todaysSessions.length}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Focus Time</span>
                   <span className="font-medium">{focusTime}m</span>
                 </div>
@@ -277,27 +277,27 @@ export default function Dashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
       >
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+        <Card className="p-4">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button variant="outline" className="h-20 flex-col space-y-2">
-                <CheckSquare className="h-6 w-6" />
-                <span className="text-sm">Add Task</span>
+          <CardContent className="p-0">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Button variant="outline" className="h-16 flex-col space-y-1 text-xs">
+                <CheckSquare className="h-4 w-4" />
+                <span>Add Task</span>
               </Button>
-              <Button variant="outline" className="h-20 flex-col space-y-2">
-                <Calendar className="h-6 w-6" />
-                <span className="text-sm">Schedule</span>
+              <Button variant="outline" className="h-16 flex-col space-y-1 text-xs">
+                <Calendar className="h-4 w-4" />
+                <span>Schedule</span>
               </Button>
-              <Button variant="outline" className="h-20 flex-col space-y-2">
-                <Clock className="h-6 w-6" />
-                <span className="text-sm">Start Timer</span>
+              <Button variant="outline" className="h-16 flex-col space-y-1 text-xs">
+                <Clock className="h-4 w-4" />
+                <span>Start Timer</span>
               </Button>
-              <Button variant="outline" className="h-20 flex-col space-y-2">
-                <Target className="h-6 w-6" />
-                <span className="text-sm">Set Goal</span>
+              <Button variant="outline" className="h-16 flex-col space-y-1 text-xs">
+                <Target className="h-4 w-4" />
+                <span>Set Goal</span>
               </Button>
             </div>
           </CardContent>

@@ -171,3 +171,18 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  /* Dark color for the thumb */
+  background-color: #232325;
+}
+
+::-webkit-scrollbar-track {
+  /* Dark color for the track */
+  background-color: #00000047;
+  /* @apply bg-white */
+}
