@@ -17,6 +17,7 @@ import {
   Sun,
   Menu,
   X,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -24,6 +25,7 @@ import { useState, useEffect } from "react";
 const navItems = [
   { href: "/", icon: Home, label: "Dashboard" },
   { href: "/timetable", icon: Calendar, label: "Timetable" },
+  { href: "/academic", icon: GraduationCap, label: "Academic" },
   { href: "/todos", icon: CheckSquare, label: "To-Do" },
   { href: "/resources", icon: FolderOpen, label: "Resources" },
   { href: "/projects", icon: Rocket, label: "Projects" },

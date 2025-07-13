@@ -6,6 +6,8 @@ import { Heart, Zap, Clock, Target } from "lucide-react";
 
 const quickLinks = [
   { href: "/", label: "Dashboard" },
+  { href: "/timetable", label: "Timetable" },
+  { href: "/academic", label: "Academic" },
   { href: "/todos", label: "Tasks" },
   { href: "/pomodoro", label: "Focus" },
   { href: "/goals", label: "Goals" },
@@ -89,9 +91,6 @@ export function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-1 md:space-y-0 w-full">
             <p className="text-xs text-muted-foreground">
               © 2025 Zeno. Personal productivity dashboard.
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Last updated: {new Date().toLocaleDateString()}
             </p>
           </div>
         </div>
