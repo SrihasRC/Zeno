@@ -77,6 +77,7 @@ export interface PomodoroSession {
   completed: boolean;
   startTime: Date;
   endTime?: Date;
+  label?: string;
 }
 
 export interface JournalEntry {

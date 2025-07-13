@@ -8,8 +8,12 @@ interface PomodoroStore {
   isRunning: boolean;
   timeLeft: number;
   addSession: (session: Omit<PomodoroSession, 'id'>) => void;
-  startSession: (type: 'focus' | 'short-break' | 'long-break', duration: number) => void;
+  startSession: (type: 'focus' | 'short-break' | 'long-break', duration: number, label?: string) => void;
+  pauseSession: () => void;
+  resumeSession: () => void;
   stopSession: () => void;
+  clearSession: () => void;
+  clearHistory: () => void;
   updateTimeLeft: (time: number) => void;
   getTodaysSessions: () => PomodoroSession[];
 }
@@ -28,15 +32,22 @@ export const usePomodoroStore = create<PomodoroStore>()(
         };
         set((state) => ({ sessions: [...state.sessions, newSession] }));
       },
-      startSession: (type, duration) => {
+      startSession: (type, duration, label) => {
         const session: PomodoroSession = {
           id: crypto.randomUUID(),
           type,
           duration,
           completed: false,
           startTime: new Date(),
+          label,
         };
         set({ currentSession: session, isRunning: true, timeLeft: duration * 60 });
+      },
+      pauseSession: () => {
+        set({ isRunning: false });
+      },
+      resumeSession: () => {
+        set({ isRunning: true });
       },
       stopSession: () => {
         const { currentSession } = get();
@@ -53,6 +64,16 @@ export const usePomodoroStore = create<PomodoroStore>()(
             timeLeft: 0,
           }));
         }
+      },
+      clearSession: () => {
+        set({
+          currentSession: null,
+          isRunning: false,
+          timeLeft: 0,
+        });
+      },
+      clearHistory: () => {
+        set({ sessions: [] });
       },
       updateTimeLeft: (time) => {
         set({ timeLeft: time });
