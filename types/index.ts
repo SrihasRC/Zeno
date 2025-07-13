@@ -93,6 +93,8 @@ export interface Goal {
   id: string;
   title: string;
   description: string;
+  category: 'personal' | 'professional' | 'health' | 'learning' | 'financial' | 'other';
+  priority: 'low' | 'medium' | 'high';
   deadline?: Date;
   progress: number;
   isCompleted: boolean;
