@@ -25,20 +25,20 @@ export function Footer() {
       transition={{ delay: 0.3 }}
       className="border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
     >
-      <div className="container px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div className="container max-w-7xl mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-6 w-full">
           {/* Brand Section */}
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
+          <div className="space-y-4 text-center md:text-left flex-1">
+            <div className="flex items-center space-x-2 justify-center md:justify-start">
               <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
                 <span className="font-bold text-xs">Z</span>
               </div>
               <span className="font-bold text-lg">Zeno</span>
             </div>
-            <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed mx-auto md:mx-0">
               Your personal productivity hub. Built for focus, designed for growth.
             </p>
-            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+            <div className="flex items-center space-x-1 text-xs text-muted-foreground justify-center md:justify-start">
               <span>Made with</span>
               <Heart className="h-3 w-3 text-red-500" />
               <span>for productivity</span>
@@ -46,9 +46,9 @@ export function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-3">
+          <div className="space-y-4 text-center md:text-left flex-1">
             <h3 className="font-semibold text-xs uppercase tracking-wider text-foreground">Quick Access</h3>
-            <div className="grid grid-cols-2 gap-1">
+            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
               {quickLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -62,9 +62,9 @@ export function Footer() {
           </div>
 
           {/* Status */}
-          <div className="space-y-3">
+          <div className="space-y-4 text-center md:text-right flex-1">
             <h3 className="font-semibold text-xs uppercase tracking-wider text-foreground">Status</h3>
-            <div className="space-y-1">
+            <div className="space-y-2 flex flex-col items-center md:items-end">
               {stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
@@ -85,9 +85,8 @@ export function Footer() {
           </div>
         </div>
 
-      </div>
-        <div className="mt-6 pt-4 border-t border-border/40 p-4">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-1 md:space-y-0">
+        <div className="pt-4 border-t border-border/40">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-1 md:space-y-0 w-full">
             <p className="text-xs text-muted-foreground">
               © 2025 Zeno. Personal productivity dashboard.
             </p>
@@ -96,6 +95,7 @@ export function Footer() {
             </p>
           </div>
         </div>
+      </div>
     </motion.footer>
   );
 }

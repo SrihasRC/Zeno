@@ -15,6 +15,8 @@ import {
   Target,
   Moon,
   Sun,
+  Menu,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -34,6 +36,7 @@ const navItems = [
 export function Navbar() {
   const pathname = usePathname();
   const [isDark, setIsDark] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const theme = localStorage.getItem("theme");
@@ -91,7 +94,24 @@ export function Navbar() {
               );
             })}
           </div>
-          
+        </div>
+
+        <div className="flex items-center space-x-2">
+          {/* Mobile menu button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 md:hidden"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-4 w-4" />
+            ) : (
+              <Menu className="h-4 w-4" />
+            )}
+            <span className="sr-only">Toggle mobile menu</span>
+          </Button>
+
           <Button
             variant="ghost"
             size="sm"
@@ -113,6 +133,45 @@ export function Navbar() {
           </Button>
         </div>
       </div>
+
+      {/* Mobile Navigation */}
+      {isMobileMenuOpen && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur"
+        >
+          <div className="container px-4 py-3">
+            <div className="grid grid-cols-3 gap-2">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                const Icon = item.icon;
+                
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <motion.div
+                      whileTap={{ scale: 0.95 }}
+                      className={`flex flex-col items-center space-y-1 p-2 rounded-md text-xs font-medium transition-colors ${
+                        isActive
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span className="text-xs">{item.label}</span>
+                    </motion.div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </motion.div>
+      )}
     </motion.nav>
   );
 }
