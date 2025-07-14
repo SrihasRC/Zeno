@@ -23,20 +23,57 @@ export interface TimetableBlock {
   id: string;
   title: string;
   description?: string;
-  startTime: string;
-  endTime: string;
+  startTime?: string;
+  endTime?: string;
   day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+  date?: Date; // For monthly view events
   color: string;
+  type: 'recurring' | 'one-time' | 'assignment'; // added assignment type
   createdAt: Date;
+  // Assignment-specific fields (optional for backward compatibility)
+  dueDate?: Date;
+  priority?: 'low' | 'medium' | 'high';
+  status?: 'pending' | 'in-progress' | 'submitted' | 'graded';
+  assignmentId?: string; // Reference to the original assignment
+}
+
+export interface Subject {
+  id: string;
+  name: string;
+  code: string;
+  color: string;
+  instructor?: string;
+  credits?: number;
+  createdAt: Date;
+}
+
+export interface Assignment {
+  id: string;
+  subjectId: string;
+  title: string;
+  description?: string;
+  type: 'assignment' | 'project' | 'exam' | 'quiz' | 'presentation';
+  dueDate: Date;
+  status: 'pending' | 'in-progress' | 'submitted' | 'graded';
+  priority: 'low' | 'medium' | 'high';
+  grade?: string;
+  maxPoints?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Project {
   id: string;
   title: string;
-  description?: string;
+  description: string;
+  category: 'web' | 'mobile' | 'api' | 'desktop' | 'aiml' | 'other';
+  customCategory?: string; // For when category is 'other'
   tags: string[];
   techStack: string[];
-  status: 'planning' | 'in-progress' | 'done';
+  customTechStack?: string; // For custom technologies not in the predefined list
+  status: 'planning' | 'in-progress' | 'done' | 'on-hold';
+  repositoryUrl?: string;
+  liveUrl?: string;
   notes: string;
   createdAt: Date;
   updatedAt: Date;
@@ -44,13 +81,25 @@ export interface Project {
 
 export interface Resource {
   id: string;
-  fileName: string;
-  fileType: string;
-  fileSize: number;
+  title: string;
+  description?: string;
+  type: 'file' | 'link' | 'youtube' | 'website' | 'document';
+  category: 'academic' | 'personal' | 'work' | 'reference' | 'tutorial' | 'other';
   tags: string[];
   notes: string;
-  uploadedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  // For file uploads
+  fileName?: string;
+  fileType?: string;
+  fileSize?: number;
   fileData?: ArrayBuffer;
+  // For links
+  url?: string;
+  // For YouTube videos
+  youtubeId?: string;
+  // Additional metadata
+  isFavorite?: boolean;
 }
 
 export interface RoadmapStep {
@@ -98,6 +147,17 @@ export interface Goal {
   deadline?: Date;
   progress: number;
   isCompleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Note {
+  id: string;
+  title: string;
+  content: string;
+  category: 'personal' | 'work' | 'learning' | 'ideas' | 'meeting' | 'journal' | 'other';
+  tags: string[];
+  mood?: 'excellent' | 'good' | 'neutral' | 'sad' | 'stressed';
   createdAt: Date;
   updatedAt: Date;
 }
