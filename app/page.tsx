@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   CheckSquare,
   Clock,
@@ -13,6 +14,9 @@ import {
   Plus,
   Play,
   Coffee,
+  GraduationCap,
+  FileText,
+  FolderOpen,
 } from "lucide-react";
 import { useTodoStore } from "@/store/todoStore";
 import { usePomodoroStore } from "@/store/pomodoroStore";
@@ -282,22 +286,38 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               <Button variant="outline" className="h-16 flex-col space-y-1 text-xs">
                 <CheckSquare className="h-4 w-4" />
                 <span>Add Task</span>
               </Button>
-              <Button variant="outline" className="h-16 flex-col space-y-1 text-xs">
-                <Calendar className="h-4 w-4" />
-                <span>Schedule</span>
-              </Button>
+              <Link href="/timetable">
+                <Button variant="outline" className="h-16 w-full flex-col space-y-1 text-xs">
+                  <Calendar className="h-4 w-4" />
+                  <span>Timetable</span>
+                </Button>
+              </Link>
+              <Link href="/academic">
+                <Button variant="outline" className="h-16 w-full flex-col space-y-1 text-xs">
+                  <GraduationCap className="h-4 w-4" />
+                  <span>Academic</span>
+                </Button>
+              </Link>
+              <Link href="/notes">
+                <Button variant="outline" className="h-16 w-full flex-col space-y-1 text-xs">
+                  <FileText className="h-4 w-4" />
+                  <span>Notes</span>
+                </Button>
+              </Link>
+              <Link href="/resources">
+                <Button variant="outline" className="h-16 w-full flex-col space-y-1 text-xs">
+                  <FolderOpen className="h-4 w-4" />
+                  <span>Resources</span>
+                </Button>
+              </Link>
               <Button variant="outline" className="h-16 flex-col space-y-1 text-xs">
                 <Clock className="h-4 w-4" />
                 <span>Start Timer</span>
-              </Button>
-              <Button variant="outline" className="h-16 flex-col space-y-1 text-xs">
-                <Target className="h-4 w-4" />
-                <span>Set Goal</span>
               </Button>
             </div>
           </CardContent>

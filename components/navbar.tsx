@@ -9,7 +9,6 @@ import {
   CheckSquare,
   FolderOpen,
   Rocket,
-  Map,
   Timer,
   BookOpen,
   Target,
@@ -18,6 +17,7 @@ import {
   Menu,
   X,
   GraduationCap,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -27,9 +27,9 @@ const navItems = [
   { href: "/timetable", icon: Calendar, label: "Timetable" },
   { href: "/academic", icon: GraduationCap, label: "Academic" },
   { href: "/todos", icon: CheckSquare, label: "To-Do" },
+  { href: "/notes", icon: FileText, label: "Notes" },
   { href: "/resources", icon: FolderOpen, label: "Resources" },
   { href: "/projects", icon: Rocket, label: "Projects" },
-  { href: "/roadmap", icon: Map, label: "Roadmap" },
   { href: "/pomodoro", icon: Timer, label: "Pomodoro" },
   { href: "/journal", icon: BookOpen, label: "Journal" },
   { href: "/goals", icon: Target, label: "Goals" },
