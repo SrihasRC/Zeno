@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { AssignmentDialog } from '@/components/academic/AssignmentDialog';
 import Link from 'next/link';
 
@@ -35,6 +36,8 @@ export function AssignmentsView() {
   const [sortBy, setSortBy] = useState<'dueDate' | 'priority' | 'status' | 'title'>('dueDate');
   const [showAssignmentDialog, setShowAssignmentDialog] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [assignmentToDelete, setAssignmentToDelete] = useState<string | null>(null);
 
   const getSubjectName = (subjectId: string) => {
     const subject = subjects.find(s => s.id === subjectId);
@@ -125,9 +128,21 @@ export function AssignmentsView() {
   };
 
   const handleDelete = (assignmentId: string) => {
-    if (confirm('Are you sure you want to delete this assignment?')) {
-      deleteAssignment(assignmentId);
+    setAssignmentToDelete(assignmentId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (assignmentToDelete) {
+      deleteAssignment(assignmentToDelete);
+      setAssignmentToDelete(null);
     }
+    setDeleteDialogOpen(false);
+  };
+
+  const cancelDelete = () => {
+    setAssignmentToDelete(null);
+    setDeleteDialogOpen(false);
   };
 
   const getDateStatus = (dueDate: Date | string) => {
@@ -461,6 +476,24 @@ export function AssignmentsView() {
         onOpenChange={setShowAssignmentDialog}
         assignment={editingAssignment}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Assignment</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this assignment? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelDelete}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
