@@ -570,10 +570,10 @@ export default function ResourcesPage() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   className="group"
                 >
-                  <Card className="hover:shadow-lg transition-all duration-200">
+                  <Card className="hover:shadow-lg transition-all duration-200 overflow-hidden">
                     <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3 flex-1">
+                      <div className="flex items-start justify-between gap-3 min-w-0">
+                        <div className="flex items-center gap-3 flex-1 min-w-0 overflow-hidden">
                           <div className="relative">
                             <div className="p-2 rounded-lg bg-primary/10">
                               <ResourceIcon className="h-5 w-5 text-primary" />
@@ -582,13 +582,13 @@ export default function ResourcesPage() {
                               <CategoryIcon className={`h-3 w-3 ${categoryColor}`} />
                             </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <CardTitle className="text-lg truncate">{resource.title}</CardTitle>
-                            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                              <Calendar className="h-3 w-3" />
-                              {formatDate(new Date(resource.createdAt))}
-                              <span>•</span>
-                              <Badge variant="outline" className="text-xs">
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <CardTitle className="text-lg truncate overflow-hidden text-ellipsis whitespace-nowrap">{resource.title}</CardTitle>
+                            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground overflow-hidden">
+                              <Calendar className="h-3 w-3 flex-shrink-0" />
+                              <span className="truncate">{formatDate(new Date(resource.createdAt))}</span>
+                              <span className="flex-shrink-0">•</span>
+                              <Badge variant="outline" className="text-xs truncate max-w-24">
                                 {resource.customCategory || RESOURCE_CATEGORIES.find(cat => cat.key === resource.category)?.label || resource.category}
                               </Badge>
                             </div>
@@ -624,21 +624,21 @@ export default function ResourcesPage() {
                     
                     <CardContent className="pt-0">
                       {resource.notes && (
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                        <p className="text-sm text-muted-foreground mb-4 overflow-hidden line-clamp-3 break-words">
                           {resource.notes}
                         </p>
                       )}
                       
                       {/* Tags */}
                       {resource.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-4">
+                        <div className="flex flex-wrap gap-1 mb-4 overflow-hidden">
                           {resource.tags.slice(0, 3).map((tag: string) => (
-                            <Badge key={tag} variant="outline" className="text-xs">
+                            <Badge key={tag} variant="outline" className="text-xs truncate max-w-20">
                               #{tag}
                             </Badge>
                           ))}
                           {resource.tags.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs flex-shrink-0">
                               +{resource.tags.length - 3} more
                             </Badge>
                           )}
