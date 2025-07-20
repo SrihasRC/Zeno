@@ -13,11 +13,18 @@ import {
   MoreHorizontal,
   BookOpen,
   StickyNote,
-  Clock
+  Clock,
+  Eye,
+  User,
+  Briefcase,
+  GraduationCap,
+  Lightbulb,
+  Users,
+  MessageSquare
 } from 'lucide-react';
 import { useNotesStore } from '@/store/notesStore';
 import type { Note } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -29,13 +36,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const NOTE_CATEGORIES = [
-  { key: 'personal', label: 'Personal', color: 'bg-blue-500' },
-  { key: 'work', label: 'Work', color: 'bg-green-500' },
-  { key: 'learning', label: 'Learning', color: 'bg-purple-500' },
-  { key: 'ideas', label: 'Ideas', color: 'bg-yellow-500' },
-  { key: 'meeting', label: 'Meeting', color: 'bg-red-500' },
-  { key: 'journal', label: 'Journal', color: 'bg-orange-500' },
-  { key: 'other', label: 'Other', color: 'bg-gray-500' }
+  { key: 'all', label: 'All Notes', color: 'bg-gray-100', textColor: 'text-gray-700', icon: FileText },
+  { key: 'personal', label: 'Personal', color: 'bg-blue-100', textColor: 'text-blue-700', icon: User },
+  { key: 'work', label: 'Work', color: 'bg-green-100', textColor: 'text-green-700', icon: Briefcase },
+  { key: 'learning', label: 'Learning', color: 'bg-purple-100', textColor: 'text-purple-700', icon: GraduationCap },
+  { key: 'ideas', label: 'Ideas', color: 'bg-yellow-100', textColor: 'text-yellow-700', icon: Lightbulb },
+  { key: 'meeting', label: 'Meeting', color: 'bg-red-100', textColor: 'text-red-700', icon: Users },
+  { key: 'journal', label: 'Journal', color: 'bg-orange-100', textColor: 'text-orange-700', icon: MessageSquare },
+  { key: 'other', label: 'Other', color: 'bg-gray-100', textColor: 'text-gray-700', icon: StickyNote }
 ];
 
 export default function NotesPage() {
@@ -46,7 +54,8 @@ export default function NotesPage() {
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingNote, setViewingNote] = useState<Note | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -64,7 +73,59 @@ export default function NotesPage() {
     const matchesCategory = filterCategory === 'all' || note.category === filterCategory;
     
     return matchesSearch && matchesCategory;
-  });
+  }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  // Helper functions
+  const truncateText = (text: string, maxLength: number = 200) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trim() + '...';
+  };
+
+  const formatDate = (date: Date) => {
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+    
+    if (diffInHours < 24) {
+      return new Intl.DateTimeFormat('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+    } else if (diffInHours < 24 * 7) {
+      return new Intl.DateTimeFormat('en-US', {
+        weekday: 'short'
+      }).format(date);
+    } else {
+      return new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric'
+      }).format(date);
+    }
+  };
+
+  const formatLongDate = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  };
+
+  const getCategoryInfo = (category: string) => {
+    return NOTE_CATEGORIES.find(cat => cat.key === category) || NOTE_CATEGORIES[0];
+  };
+
+  const getWordCount = (text: string) => {
+    return text.trim().split(/\s+/).length;
+  };
+
+  const getReadingTime = (text: string) => {
+    const words = getWordCount(text);
+    const minutes = Math.ceil(words / 200); // Average reading speed
+    return minutes;
+  };
 
   const resetForm = () => {
     setFormData({
@@ -111,6 +172,11 @@ export default function NotesPage() {
     setIsDialogOpen(true);
   };
 
+  const handleView = (note: Note) => {
+    setViewingNote(note);
+    setViewDialogOpen(true);
+  };
+
   const handleDelete = (noteId: string) => {
     setNoteToDelete(noteId);
     setDeleteDialogOpen(true);
@@ -147,114 +213,100 @@ export default function NotesPage() {
     }));
   };
 
-  const getCategoryColor = (category: string) => {
-    const found = NOTE_CATEGORIES.find(cat => cat.key === category);
-    return found ? found.color : 'bg-gray-500';
-  };
-
-  const getCategoryLabel = (category: string) => {
-    const found = NOTE_CATEGORIES.find(cat => cat.key === category);
-    return found ? found.label : 'Other';
-  };
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
-  };
-
   return (
-    <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="container max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-4"
+        className="space-y-6"
       >
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Notes & Journal</h1>
-            <p className="text-muted-foreground">
-              Capture your thoughts, ideas, and important information
+            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+              Notes & Journal
+            </h1>
+            <p className="text-muted-foreground text-lg mt-2">
+              Capture your thoughts, ideas, and important insights
             </p>
           </div>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={resetForm}>
-                <Plus className="h-4 w-4 mr-2" />
+              <Button onClick={resetForm} size="lg" className="shadow-lg">
+                <Plus className="h-5 w-5 mr-2" />
                 New Note
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl">
+            <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-auto">
               <DialogHeader>
-                <DialogTitle>
+                <DialogTitle className="text-2xl">
                   {editingNote ? 'Edit Note' : 'Create New Note'}
                 </DialogTitle>
                 <DialogDescription>
-                  {editingNote ? 'Update your note content' : 'Capture your thoughts and ideas'}
+                  {editingNote ? 'Update your note details' : 'Capture your thoughts and ideas'}
                 </DialogDescription>
               </DialogHeader>
               
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Title *</Label>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="text-base font-medium">Title *</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Enter note title"
+                    placeholder="Enter a compelling title..."
                     required
+                    className="text-lg"
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="category">Category</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="category" className="text-base font-medium">Category</Label>
                   <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {NOTE_CATEGORIES.map(cat => (
+                      {NOTE_CATEGORIES.filter(cat => cat.key !== 'all').map(cat => (
                         <SelectItem key={cat.key} value={cat.key}>
-                          {cat.label}
+                          <div className="flex items-center gap-2">
+                            <cat.icon className={`h-4 w-4 ${cat.textColor}`} />
+                            {cat.label}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div>
-                  <Label htmlFor="content">Content *</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="content" className="text-base font-medium">Content *</Label>
                   <Textarea
                     id="content"
                     value={formData.content}
                     onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                    placeholder="Write your note content here..."
-                    rows={8}
+                    placeholder="Start writing your thoughts..."
                     required
+                    rows={12}
+                    className="resize-none"
                   />
                 </div>
 
-                <div>
-                  <Label>Tags</Label>
-                  <div className="space-y-2">
+                <div className="space-y-2">
+                  <Label className="text-base font-medium">Tags</Label>
+                  <div className="space-y-3">
                     <div className="flex gap-2">
                       <Input
                         value={formData.tagInput}
                         onChange={(e) => setFormData(prev => ({ ...prev, tagInput: e.target.value }))}
-                        placeholder="Add a tag"
+                        placeholder="Add a tag..."
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                       />
                       <Button 
                         type="button" 
                         onClick={addTag}
                         variant="outline"
-                        size="sm"
                       >
                         Add
                       </Button>
@@ -265,9 +317,10 @@ export default function NotesPage() {
                         <Badge
                           key={tag}
                           variant="secondary"
-                          className="cursor-pointer"
+                          className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors"
                           onClick={() => removeTag(tag)}
                         >
+                          <Tag className="h-3 w-3 mr-1" />
                           {tag} ×
                         </Badge>
                       ))}
@@ -275,7 +328,7 @@ export default function NotesPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-3 pt-4 border-t">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancel
                   </Button>
@@ -307,7 +360,7 @@ export default function NotesPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">This Week</p>
-                  <p className="text-2xl font-bold text-blue-500">
+                  <p className="text-2xl font-bold text-blue-600">
                     {notes.filter((n: Note) => {
                       const weekAgo = new Date();
                       weekAgo.setDate(weekAgo.getDate() - 7);
@@ -315,7 +368,7 @@ export default function NotesPage() {
                     }).length}
                   </p>
                 </div>
-                <Calendar className="h-8 w-8 text-blue-500" />
+                <Clock className="h-8 w-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>
@@ -325,11 +378,11 @@ export default function NotesPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Categories</p>
-                  <p className="text-2xl font-bold text-green-500">
+                  <p className="text-2xl font-bold text-green-600">
                     {new Set(notes.map((n: Note) => n.category)).size}
                   </p>
                 </div>
-                <Tag className="h-8 w-8 text-green-500" />
+                <FileText className="h-8 w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
@@ -339,22 +392,22 @@ export default function NotesPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Tags</p>
-                  <p className="text-2xl font-bold text-purple-500">
+                  <p className="text-2xl font-bold text-purple-600">
                     {new Set(notes.flatMap((n: Note) => n.tags)).size}
                   </p>
                 </div>
-                <StickyNote className="h-8 w-8 text-purple-500" />
+                <StickyNote className="h-8 w-8 text-purple-600" />
               </div>
             </CardContent>
           </Card>
         </div>
       </motion.div>
 
-      {/* Filters and Controls */}
+      {/* Filters */}
       <Card>
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -367,37 +420,20 @@ export default function NotesPage() {
             </div>
             
             <Select value={filterCategory} onValueChange={setFilterCategory}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full sm:w-64">
                 <SelectValue placeholder="Filter by category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
                 {NOTE_CATEGORIES.map(cat => (
                   <SelectItem key={cat.key} value={cat.key}>
-                    {cat.label}
+                    <div className="flex items-center gap-2">
+                      <cat.icon className={`h-4 w-4 ${cat.textColor}`} />
+                      {cat.label}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
-            <div className="flex gap-2">
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('grid')}
-                className="flex-1"
-              >
-                Grid
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('list')}
-                className="flex-1"
-              >
-                List
-              </Button>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -407,11 +443,11 @@ export default function NotesPage() {
         <Card>
           <CardContent className="p-12">
             <div className="text-center text-muted-foreground">
-              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-medium mb-2">No notes found</h3>
-              <p className="text-sm">
+              <FileText className="h-16 w-16 mx-auto mb-4 opacity-50" />
+              <h3 className="text-xl font-medium mb-2">No notes found</h3>
+              <p className="text-base">
                 {notes.length === 0 
-                  ? "Start by creating your first note"
+                  ? "Start by creating your first note to capture your thoughts"
                   : "Try adjusting your search or filter criteria"
                 }
               </p>
@@ -419,87 +455,204 @@ export default function NotesPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className={viewMode === 'grid' 
-          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
-          : "space-y-4"
-        }>
+        <div className="space-y-6">
           <AnimatePresence>
-            {filteredNotes.map((note: Note) => (
-              <motion.div
-                key={note.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="group"
-              >
-                <Card className="hover:shadow-lg transition-all duration-200">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className={`w-3 h-3 rounded-full ${getCategoryColor(note.category)}`} />
-                          <span className="text-sm text-muted-foreground">
-                            {getCategoryLabel(note.category)}
-                          </span>
+            {filteredNotes.map((note: Note) => {
+              const categoryInfo = getCategoryInfo(note.category);
+              const readingTime = getReadingTime(note.content);
+              
+              return (
+                <motion.article
+                  key={note.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="group"
+                >
+                  <Card className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-muted hover:border-l-primary">
+                    <CardContent className="p-8">
+                      {/* Header Section */}
+                      <div className="flex items-start justify-between mb-6">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-4 mb-4">
+                            <div className={`p-3 rounded-xl ${categoryInfo.color}`}>
+                              <categoryInfo.icon className={`h-5 w-5 ${categoryInfo.textColor}`} />
+                            </div>
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${categoryInfo.color} ${categoryInfo.textColor}`}>
+                                {categoryInfo.label}
+                              </span>
+                              <span>•</span>
+                              <div className="flex items-center gap-1">
+                                <Clock className="h-4 w-4" />
+                                {formatDate(new Date(note.createdAt))}
+                              </div>
+                              <span>•</span>
+                              <span>{readingTime} min read</span>
+                            </div>
+                          </div>
+                          
+                          <h2 className="text-2xl font-bold mb-4 text-foreground group-hover:text-primary transition-colors cursor-pointer" 
+                              onClick={() => handleView(note)}>
+                            {note.title}
+                          </h2>
+                          
+                          <div className="prose prose-lg max-w-none mb-6">
+                            <p className="text-muted-foreground leading-relaxed text-base">
+                              {truncateText(note.content, 300)}
+                            </p>
+                          </div>
+                          
+                          {/* Tags */}
+                          {note.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-6">
+                              {note.tags.slice(0, 5).map((tag: string) => (
+                                <Badge key={tag} variant="secondary" className="text-sm bg-muted/50 hover:bg-muted transition-colors">
+                                  <Tag className="h-3 w-3 mr-1" />
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {note.tags.length > 5 && (
+                                <Badge variant="outline" className="text-sm">
+                                  +{note.tags.length - 5} more
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-3">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleView(note)}
+                              className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              Read Full Note
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEdit(note)}
+                            >
+                              <Edit3 className="h-4 w-4 mr-2" />
+                              Edit
+                            </Button>
+                          </div>
                         </div>
-                        <CardTitle className="text-lg line-clamp-2">{note.title}</CardTitle>
-                        <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          {formatDate(new Date(note.createdAt))}
-                        </div>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleView(note)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Full Note
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEdit(note)}>
+                              <Edit3 className="h-4 w-4 mr-2" />
+                              Edit Note
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDelete(note.id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete Note
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                      
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEdit(note)}>
-                            <Edit3 className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDelete(note.id)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-0">
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                      {note.content}
-                    </p>
-                    
-                    {/* Tags */}
-                    {note.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {note.tags.slice(0, 3).map((tag: string) => (
-                          <Badge key={tag} variant="outline" className="text-xs">
-                            #{tag}
-                          </Badge>
-                        ))}
-                        {note.tags.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{note.tags.length - 3} more
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                    </CardContent>
+                  </Card>
+                </motion.article>
+              );
+            })}
           </AnimatePresence>
         </div>
       )}
 
+      {/* View Note Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-auto">
+          {viewingNote && (
+            <>
+              <DialogHeader className="pb-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className={`p-3 rounded-xl ${getCategoryInfo(viewingNote.category).color}`}>
+                        {(() => {
+                          const CategoryIcon = getCategoryInfo(viewingNote.category).icon;
+                          return <CategoryIcon className={`h-5 w-5 ${getCategoryInfo(viewingNote.category).textColor}`} />;
+                        })()}
+                      </div>
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getCategoryInfo(viewingNote.category).color} ${getCategoryInfo(viewingNote.category).textColor}`}>
+                          {getCategoryInfo(viewingNote.category).label}
+                        </span>
+                        <span>•</span>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          {formatLongDate(new Date(viewingNote.createdAt))}
+                        </div>
+                        <span>•</span>
+                        <span>{getWordCount(viewingNote.content)} words</span>
+                        <span>•</span>
+                        <span>{getReadingTime(viewingNote.content)} min read</span>
+                      </div>
+                    </div>
+                    <DialogTitle className="text-3xl font-bold mb-6">
+                      {viewingNote.title}
+                    </DialogTitle>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setViewDialogOpen(false);
+                        setTimeout(() => handleEdit(viewingNote), 100);
+                      }}
+                    >
+                      <Edit3 className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-8">
+                <div className="prose prose-xl max-w-none">
+                  <div className="whitespace-pre-wrap leading-relaxed text-foreground text-lg">
+                    {viewingNote.content}
+                  </div>
+                </div>
+
+                {viewingNote.tags.length > 0 && (
+                  <div className="border-t pt-6">
+                    <h4 className="text-lg font-semibold text-foreground mb-4">Tags</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {viewingNote.tags.map((tag: string) => (
+                        <Badge key={tag} variant="secondary" className="text-sm bg-muted hover:bg-muted/80 px-3 py-1">
+                          <Tag className="h-3 w-3 mr-1" />
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+      
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
