@@ -84,7 +84,8 @@ export interface Resource {
   title: string;
   description?: string;
   type: 'file' | 'link' | 'youtube' | 'website' | 'document';
-  category: 'academic' | 'personal' | 'work' | 'reference' | 'tutorial' | 'other';
+  category: 'academic' | 'personal' | 'work' | 'reference' | 'tutorial' | 'ai' | 'development' | 'design' | 'other';
+  customCategory?: string; // For user-defined categories
   tags: string[];
   notes: string;
   createdAt: Date;

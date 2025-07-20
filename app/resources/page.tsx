@@ -15,7 +15,14 @@ import {
   FolderOpen,
   Upload,
   Calendar,
-  HardDrive
+  Folder,
+  Brain,
+  Code,
+  Palette,
+  BookOpen,
+  Briefcase,
+  User,
+  Settings
 } from 'lucide-react';
 import { useResourcesStore } from '@/store/resourcesStore';
 import type { Resource } from '@/types';
@@ -37,10 +44,24 @@ const RESOURCE_TYPES = [
   { key: 'link', label: 'Other Links' }
 ];
 
+const RESOURCE_CATEGORIES = [
+  { key: 'all', label: 'All Categories', icon: FolderOpen, color: 'text-gray-500' },
+  { key: 'ai', label: 'AI & Machine Learning', icon: Brain, color: 'text-purple-500' },
+  { key: 'development', label: 'Development', icon: Code, color: 'text-blue-500' },
+  { key: 'design', label: 'Design', icon: Palette, color: 'text-pink-500' },
+  { key: 'academic', label: 'Academic', icon: BookOpen, color: 'text-green-500' },
+  { key: 'work', label: 'Work', icon: Briefcase, color: 'text-orange-500' },
+  { key: 'personal', label: 'Personal', icon: User, color: 'text-indigo-500' },
+  { key: 'reference', label: 'Reference', icon: FileText, color: 'text-cyan-500' },
+  { key: 'tutorial', label: 'Tutorial', icon: Settings, color: 'text-red-500' },
+  { key: 'other', label: 'Other', icon: Folder, color: 'text-gray-500' }
+];
+
 export default function ResourcesPage() {
   const { resources, addResource, updateResource, deleteResource } = useResourcesStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -52,6 +73,8 @@ export default function ResourcesPage() {
     title: '',
     url: '',
     type: 'website' as 'website' | 'youtube' | 'link',
+    category: 'reference' as Resource['category'],
+    customCategory: '',
     notes: '',
     tags: [] as string[],
     tagInput: ''
@@ -66,8 +89,15 @@ export default function ResourcesPage() {
     if (filterType !== 'all') {
       matchesType = resource.type === filterType;
     }
+
+    let matchesCategory = true;
+    if (filterCategory !== 'all') {
+      // Check if it matches the resource's category or customCategory
+      matchesCategory = resource.category === filterCategory || 
+                       (resource.customCategory?.toLowerCase() === filterCategory.toLowerCase());
+    }
     
-    return matchesSearch && matchesType;
+    return matchesSearch && matchesType && matchesCategory;
   });
 
   const resetForm = () => {
@@ -75,6 +105,8 @@ export default function ResourcesPage() {
       title: '',
       url: '',
       type: 'website',
+      category: 'reference',
+      customCategory: '',
       notes: '',
       tags: [],
       tagInput: ''
@@ -98,6 +130,8 @@ export default function ResourcesPage() {
         title: formData.title,
         url: formData.url,
         type: formData.type,
+        category: formData.category,
+        customCategory: formData.category === 'other' ? formData.customCategory : undefined,
         notes: formData.notes,
         tags: formData.tags
       };
@@ -115,7 +149,8 @@ export default function ResourcesPage() {
         title: formData.title,
         description: formData.notes,
         type: formData.type,
-        category: 'reference',
+        category: formData.category,
+        customCategory: formData.category === 'other' ? formData.customCategory : undefined,
         url: formData.url,
         tags: formData.tags,
         notes: formData.notes
@@ -139,6 +174,8 @@ export default function ResourcesPage() {
       title: resource.title,
       url: resource.url || '',
       type: resource.type === 'youtube' ? 'youtube' : resource.type === 'website' ? 'website' : 'link',
+      category: resource.category,
+      customCategory: resource.customCategory || '',
       notes: resource.notes,
       tags: resource.tags,
       tagInput: ''
@@ -189,6 +226,16 @@ export default function ResourcesPage() {
       case 'website': return FileText;
       default: return File;
     }
+  };
+
+  const getCategoryIcon = (category: string) => {
+    const categoryInfo = RESOURCE_CATEGORIES.find(cat => cat.key === category);
+    return categoryInfo ? categoryInfo.icon : Folder;
+  };
+
+  const getCategoryColor = (category: string) => {
+    const categoryInfo = RESOURCE_CATEGORIES.find(cat => cat.key === category);
+    return categoryInfo ? categoryInfo.color : 'text-gray-500';
   };
 
   const formatDate = (date: Date) => {
@@ -259,6 +306,38 @@ export default function ResourcesPage() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div>
+                  <Label htmlFor="category">Category</Label>
+                  <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value as Resource['category'] }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {RESOURCE_CATEGORIES.filter(cat => cat.key !== 'all').map(cat => (
+                        <SelectItem key={cat.key} value={cat.key}>
+                          <div className="flex items-center gap-2">
+                            <cat.icon className={`h-4 w-4 ${cat.color}`} />
+                            {cat.label}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Custom Category Input */}
+                {formData.category === 'other' && (
+                  <div>
+                    <Label htmlFor="customCategory">Custom Category</Label>
+                    <Input
+                      id="customCategory"
+                      value={formData.customCategory}
+                      onChange={(e) => setFormData(prev => ({ ...prev, customCategory: e.target.value }))}
+                      placeholder="Enter custom category"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <Label htmlFor="url">URL *</Label>
@@ -349,40 +428,40 @@ export default function ResourcesPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Websites</p>
-                  <p className="text-2xl font-bold text-blue-500">
-                    {resources.filter((r: Resource) => r.type === 'website').length}
-                  </p>
-                </div>
-                <HardDrive className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">YouTube Videos</p>
-                  <p className="text-2xl font-bold text-green-500">
-                    {resources.filter((r: Resource) => r.type === 'youtube').length}
-                  </p>
-                </div>
-                <ImageIcon className="h-8 w-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Other Links</p>
+                  <p className="text-sm font-medium text-muted-foreground">AI & ML</p>
                   <p className="text-2xl font-bold text-purple-500">
-                    {resources.filter((r: Resource) => r.type === 'link').length}
+                    {resources.filter((r: Resource) => r.category === 'ai').length}
                   </p>
                 </div>
-                <FileText className="h-8 w-8 text-purple-500" />
+                <Brain className="h-8 w-8 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Development</p>
+                  <p className="text-2xl font-bold text-blue-500">
+                    {resources.filter((r: Resource) => r.category === 'development').length}
+                  </p>
+                </div>
+                <Code className="h-8 w-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Academic</p>
+                  <p className="text-2xl font-bold text-green-500">
+                    {resources.filter((r: Resource) => r.category === 'academic').length}
+                  </p>
+                </div>
+                <BookOpen className="h-8 w-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
@@ -392,12 +471,12 @@ export default function ResourcesPage() {
       {/* Filters and Controls */}
       <Card>
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search files, notes, or tags..."
+                  placeholder="Search resources..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-9"
@@ -413,6 +492,22 @@ export default function ResourcesPage() {
                 {RESOURCE_TYPES.map(cat => (
                   <SelectItem key={cat.key} value={cat.key}>
                     {cat.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filterCategory} onValueChange={setFilterCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by category" />
+              </SelectTrigger>
+              <SelectContent>
+                {RESOURCE_CATEGORIES.map(cat => (
+                  <SelectItem key={cat.key} value={cat.key}>
+                    <div className="flex items-center gap-2">
+                      <cat.icon className={`h-4 w-4 ${cat.color}`} />
+                      {cat.label}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -464,6 +559,8 @@ export default function ResourcesPage() {
           <AnimatePresence>
             {filteredResources.map((resource: Resource) => {
               const ResourceIcon = getResourceIcon(resource.type);
+              const CategoryIcon = getCategoryIcon(resource.category);
+              const categoryColor = getCategoryColor(resource.category);
               
               return (
                 <motion.div
@@ -477,8 +574,13 @@ export default function ResourcesPage() {
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3 flex-1">
-                          <div className="p-2 rounded-lg bg-primary/10">
-                            <ResourceIcon className="h-5 w-5 text-primary" />
+                          <div className="relative">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                              <ResourceIcon className="h-5 w-5 text-primary" />
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 p-1 rounded-full bg-background border shadow-sm">
+                              <CategoryIcon className={`h-3 w-3 ${categoryColor}`} />
+                            </div>
                           </div>
                           <div className="flex-1 min-w-0">
                             <CardTitle className="text-lg truncate">{resource.title}</CardTitle>
@@ -487,7 +589,7 @@ export default function ResourcesPage() {
                               {formatDate(new Date(resource.createdAt))}
                               <span>•</span>
                               <Badge variant="outline" className="text-xs">
-                                {resource.type}
+                                {resource.customCategory || RESOURCE_CATEGORIES.find(cat => cat.key === resource.category)?.label || resource.category}
                               </Badge>
                             </div>
                           </div>
