@@ -27,6 +27,7 @@ import { usePomodoroStore } from "@/store/pomodoroStore";
 import { useGoalsStore } from "@/store/goalsStore";
 import { useEffect, useState } from "react";
 import type { Task, PomodoroSession, Goal } from "@/types";
+import { ProtectedRoute } from "@/components/protected-route";
 
 const motivationalQuotes = [
   "The way to get started is to quit talking and begin doing. - Walt Disney",
@@ -36,7 +37,7 @@ const motivationalQuotes = [
   "Success is not final, failure is not fatal: it is the courage to continue that counts. - Winston Churchill",
 ];
 
-export default function Dashboard() {
+function Dashboard() {
   const { getTodaysTasks, addTask, updateTask } = useTodoStore();
   const { getTodaysSessions, currentSession, isRunning, startSession, pauseSession, resumeSession, stopSession, timeLeft, updateTimeLeft } = usePomodoroStore();
   const { getActiveGoals } = useGoalsStore();
@@ -526,3 +527,13 @@ export default function Dashboard() {
     </div>
   );
 }
+
+function DashboardWithAuth() {
+  return (
+    <ProtectedRoute>
+      <Dashboard />
+    </ProtectedRoute>
+  );
+}
+
+export default DashboardWithAuth;
