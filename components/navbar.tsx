@@ -18,9 +18,29 @@ import {
   X,
   GraduationCap,
   FileText,
+  LogOut,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/components/auth-provider";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { createClient } from "@/lib/supabase/client";
+
+interface Profile {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+}
 
 const navItems = [
   { href: "/", icon: Home, label: "Dashboard" },
@@ -39,6 +59,9 @@ export function Navbar() {
   const pathname = usePathname();
   const [isDark, setIsDark] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const { user } = useAuth();
+  const supabase = createClient();
 
   useEffect(() => {
     const theme = localStorage.getItem("theme");
@@ -52,6 +75,55 @@ export function Navbar() {
     document.documentElement.classList.toggle("dark", isDark);
     localStorage.setItem("theme", isDark ? "dark" : "light");
   }, [isDark]);
+
+  // Fetch profile data when user changes
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) {
+        setProfile(null);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching profile:', error);
+          // Fallback to user metadata if profile not found
+          setProfile({
+            id: user.id,
+            full_name: user.user_metadata?.full_name || null,
+            email: user.email || null,
+            avatar_url: user.user_metadata?.avatar_url || null,
+          });
+        } else {
+          setProfile(data);
+        }
+      } catch (error) {
+        console.error('Profile fetch exception:', error);
+      }
+    };
+
+    fetchProfile();
+  }, [user, supabase]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/auth/login';
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  // Don't show navbar on auth pages
+  if (pathname.startsWith('/auth')) {
+    return null;
+  }
 
   return (
     <motion.nav
@@ -133,6 +205,48 @@ export function Navbar() {
             </motion.div>
             <span className="sr-only">Toggle theme</span>
           </Button>
+
+          {/* User Menu */}
+          {user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={profile?.avatar_url || user.user_metadata?.avatar_url} alt={profile?.email || user.email} />
+                    <AvatarFallback>
+                      {profile?.full_name?.slice(0, 2).toUpperCase() || 
+                       user.user_metadata?.full_name?.slice(0, 2).toUpperCase() || 
+                       user.email?.slice(0, 2).toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {profile?.full_name || user.user_metadata?.full_name || 'User'}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {profile?.email || user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
 
