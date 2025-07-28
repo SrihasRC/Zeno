@@ -52,14 +52,14 @@ export class ZenoAI {
       // Enhance message with context
       const enhancedMessage = this.addContext(message, context)
       
-      // Call Hugging Face Space API using the API tab
+      // Call Hugging Face Space API using the correct Gradio format
       const response = await fetch(`${this.apiUrl}/call/api_predict`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          data: [enhancedMessage, []]
+          data: [enhancedMessage]
         })
       })
 

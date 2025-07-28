@@ -118,7 +118,7 @@ export function AIChat({ isOpen, onToggle }: AIChatProps) {
       console.error('AI Chat error:', error)
       addMessage({
         type: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.'
+        content: "I'm having trouble connecting to my AI service right now. Please check that:\n\n1. Your HuggingFace Space is running\n2. The environment variables are set correctly\n3. Try again in a moment\n\nYou can still use Zeno manually in the meantime! 🔧"
       })
     } finally {
       setIsLoading(false)
