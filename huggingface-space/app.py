@@ -271,7 +271,7 @@ chat_demo = gr.ChatInterface(
 )
 
 # Create API interface that matches our expected format
-def api_predict(message, history):
+def api_predict(message):
     """API endpoint that returns JSON response"""
     ai = ZenoAI()
     try:
@@ -286,10 +286,7 @@ def api_predict(message, history):
 # Create the API interface
 api_interface = gr.Interface(
     fn=api_predict,
-    inputs=[
-        gr.Textbox(placeholder="Enter your message"),
-        gr.State([])  # Chat history placeholder
-    ],
+    inputs=gr.Textbox(placeholder="Enter your message"),
     outputs=gr.JSON(label="AI Response"),
     title="🔌 API Endpoint",
     description="Use this for programmatic access from your Zeno app"

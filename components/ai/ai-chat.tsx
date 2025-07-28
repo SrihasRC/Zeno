@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -33,15 +33,7 @@ export function AIChat({ isOpen, onToggle }: AIChatProps) {
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
   const ai = useRef(new ZenoAI())
-
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
-    }
-  }, [messages])
 
   const addMessage = (message: Omit<ChatMessage, 'id' | 'timestamp'>) => {
     const newMessage: ChatMessage = {
@@ -168,8 +160,8 @@ export function AIChat({ isOpen, onToggle }: AIChatProps) {
       </div>
 
       {/* Messages */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-        <div className="space-y-4">
+      <ScrollArea className="flex-1 p-4 max-h-[360px]">
+        <div className="space-y-4 min-h-0">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -193,8 +185,8 @@ export function AIChat({ isOpen, onToggle }: AIChatProps) {
                     message.type === 'user'
                       ? 'bg-purple-600 text-white'
                       : message.type === 'action'
-                      ? 'bg-green-50 border border-green-200'
-                      : 'bg-gray-100'
+                      ? 'bg-green-50 border border-green-200 text-green-800'
+                      : 'bg-gray-100 text-gray-900'
                   }`}
                 >
                   {message.type === 'action' && message.actionResult ? (
@@ -209,7 +201,7 @@ export function AIChat({ isOpen, onToggle }: AIChatProps) {
                       </div>
                     </div>
                   ) : (
-                    <div className="whitespace-pre-wrap">{message.content}</div>
+                    <div className="whitespace-pre-wrap break-words">{message.content}</div>
                   )}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
