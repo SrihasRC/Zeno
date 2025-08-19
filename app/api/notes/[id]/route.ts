@@ -49,6 +49,8 @@ export async function PUT(
     const body = await request.json()
     const { title, content, category, mood, tags } = body
 
+    console.log('Updating note:', id, 'for user:', user.id, 'with data:', { title, content, category, tags })
+
     const { data: note, error } = await supabase
       .from('notes')
       .update({
@@ -65,6 +67,7 @@ export async function PUT(
       .single()
 
     if (error) {
+      console.log('Update error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
@@ -72,10 +75,19 @@ export async function PUT(
       return NextResponse.json({ error: 'Note not found' }, { status: 404 })
     }
 
+    console.log('Note updated successfully:', note)
     return NextResponse.json(note)
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  // PATCH and PUT do the same thing for notes
+  return PUT(request, { params })
 }
 
 export async function DELETE(
